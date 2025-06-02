@@ -60,7 +60,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       );
     }
 
-    fetch('simplified_classified_all_classes_sangir_geojson.geojson')
+ fetch('https://raw.githubusercontent.com/ridhoarazzak/Klasifikasi_peta_sangir/main/simplified_classified_all_classes_sangir_geojson.geojson')
   .then(response => response.json())
   .then(data => {
     L.geoJSON(data, {
