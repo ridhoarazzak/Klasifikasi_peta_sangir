@@ -38,24 +38,26 @@
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // Warna dan nama berdasarkan kelas (key string)
+    // Warna dan nama berdasarkan atribut "class" di GeoJSON
     const classColors = {
-      "0": "#006400",  // Hijau tua (Hutan)
-      "1": "#FFD700",  // Emas (Pertanian)
-      "2": "#FF0000",  // Merah (Pemukiman)
-      "3": "#0000FF"   // Biru (Air / Sungai)
+      "Forest": "#006400",       // Hijau tua
+      "Agriculture": "#FFD700",  // Kuning emas
+      "Settlement": "#FF0000",   // Merah
+      "Water": "#0000FF",        // Biru
+      // Tambahkan class lain jika ada
     };
 
     const classNames = {
-      "0": "Hutan",
-      "1": "Pertanian",
-      "2": "Pemukiman",
-      "3": "Air / Sungai"
+      "Forest": "Hutan",
+      "Agriculture": "Pertanian",
+      "Settlement": "Pemukiman",
+      "Water": "Air / Sungai",
+      // Tambahkan nama lain jika ada
     };
 
-    // Gaya fitur berdasarkan properti "kelas"
+    // Fungsi style berdasarkan properti 'class'
     function style(feature) {
-      const kelasStr = String(feature.properties.kelas); // cast ke string
+      const kelasStr = feature.properties.class;
       return {
         fillColor: classColors[kelasStr] || "#cccccc",
         color: "white",
@@ -64,17 +66,15 @@
       };
     }
 
-    // Popup untuk setiap fitur dengan perhitungan luas jika tidak ada property area_ha
+    // Popup untuk setiap fitur dengan perhitungan luas jika property area_ha tidak ada
     function onEachFeature(feature, layer) {
       const props = feature.properties;
       let areaHa = props.area_ha;
       if (!areaHa) {
-        areaHa = turf.area(feature) / 10000; // m2 ke ha
+        areaHa = turf.area(feature) / 10000; // dari m2 ke ha
       }
 
-      // Ambil kelas dengan pengecekan aman
-      const kelasKey = props.kelas !== undefined && props.kelas !== null ? String(props.kelas) : null;
-      const kelasName = kelasKey && classNames[kelasKey] ? classNames[kelasKey] : "Tidak diketahui";
+      const kelasName = classNames[props.class] || props.class || "Tidak diketahui";
 
       layer.bindPopup(
         `<strong>Kelas:</strong> ${kelasName}<br>Luas: ${areaHa.toFixed(2)} ha`
