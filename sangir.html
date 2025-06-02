@@ -32,11 +32,10 @@
     }).addTo(map);
 
     const classColors = {
-      kelas_1: "#1f78b4",
-      kelas_2: "#33a02c",
-      kelas_3: "#e31a1c",
-      kelas_4: "#ff7f00",
-      kelas_5: "#6a3d9a",
+      kelas_0: "#006400",
+      kelas_1: "#FFD700",
+      kelas_2: "#FF0000",
+      kelas_3: "#0000FF",
       // Tambahkan sesuai data kamu
     };
 
@@ -56,7 +55,7 @@
       );
     }
 
-    fetch('classified_all_classes_sangir_geojson.json')
+    fetch('https://drive.google.com/file/d/153jtA87VwD1Y2eweX4GsCH7alCJkDhXW/view?usp=drivesdk')
       .then(response => response.json())
       .then(data => {
         L.geoJSON(data, {
