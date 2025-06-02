@@ -25,50 +25,64 @@
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    const map = const map = L.map('map').setView([-1.5269, 101.3002], 12);
+    // Inisialisasi peta
+    const map = L.map('map').setView([-1.5269, 101.3002], 12);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; OpenStreetMap contributors'
-}).addTo(map);
-// koordinat pusat Sangir
-
+    // Tambahkan layer tile
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-      const classColors = {
-      kelas_0: "#006400",
-      kelas_1: "#FFD700",
-      kelas_2: "#FF0000",
-      kelas_3: "#0000FF",
-      // Tambahkan sesuai data kamu
+    // Warna berdasarkan kelas
+    const classColors = {
+      kelas_0: "#006400",  // Hijau tua
+      kelas_1: "#FFD700",  // Emas
+      kelas_2: "#FF0000",  // Merah
+      kelas_3: "#0000FF"   // Biru
+      // Tambahkan jika ada kelas lain
     };
 
+    // Gaya fitur berdasarkan properti "kelas"
     function style(feature) {
       return {
-        fillColor: classColors[feature.properties.class] || "#cccccc",
+        fillColor: classColors[feature.properties.kelas] || "#cccccc",
         color: "white",
         weight: 1,
         fillOpacity: 0.7
       };
     }
 
+    // Popup untuk setiap fitur
     function onEachFeature(feature, layer) {
       const props = feature.properties;
       layer.bindPopup(
-        `<strong>Kelas:</strong> ${props.class}<br>Luas: ${props.area_ha?.toFixed(2)} ha`
+        `<strong>Kelas:</strong> ${props.kelas}<br>Luas: ${props.area_ha?.toFixed(2)} ha`
       );
     }
 
- fetch('https://raw.githubusercontent.com/ridhoarazzak/Klasifikasi_peta_sangir/main/simplified_classified_all_classes_sangir_geojson.geojson')
-  .then(response => response.json())
-  .then(data => {
-    L.geoJSON(data, {
-      style: style,
-      onEachFeature: onEachFeature
-    }).addTo(map);
-  })
-  .catch(err => console.error('Error loading GeoJSON:', err));
+    // Ambil dan tampilkan GeoJSON dari GitHub
+    fetch('https://raw.githubusercontent.com/ridhoarazzak/Klasifikasi_peta_sangir/main/simplified_classified_all_classes_sangir_geojson.geojson')
+      .then(response => response.json())
+      .then(data => {
+        L.geoJSON(data, {
+          style: style,
+          onEachFeature: onEachFeature
+        }).addTo(map);
+      })
+      .catch(err => console.error('Error loading GeoJSON:', err));
+
+    // Tambahkan legenda
+    const legend = L.control({ position: "bottomright" });
+
+    legend.onAdd = function () {
+      const div = L.DomUtil.create("div", "legend");
+      for (let key in classColors) {
+        div.innerHTML += `<i style="background:${classColors[key]}"></i> ${key}<br>`;
+      }
+      return div;
+    };
+
+    legend.addTo(map);
   </script>
 </body>
 </html>
