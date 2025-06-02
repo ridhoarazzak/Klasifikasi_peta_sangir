@@ -38,7 +38,7 @@
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // Warna dan nama berdasarkan kelas
+    // Warna dan nama berdasarkan kelas (key string)
     const classColors = {
       "0": "#006400",  // Hijau tua (Hutan)
       "1": "#FFD700",  // Emas (Pertanian)
@@ -55,8 +55,9 @@
 
     // Gaya fitur berdasarkan properti "kelas"
     function style(feature) {
+      const kelasStr = String(feature.properties.kelas); // cast ke string
       return {
-        fillColor: classColors[feature.properties.kelas] || "#cccccc",
+        fillColor: classColors[kelasStr] || "#cccccc",
         color: "white",
         weight: 1,
         fillOpacity: 0.7
@@ -71,8 +72,12 @@
         areaHa = turf.area(feature) / 10000; // m2 ke ha
       }
 
+      // Ambil kelas dengan pengecekan aman
+      const kelasKey = props.kelas !== undefined && props.kelas !== null ? String(props.kelas) : null;
+      const kelasName = kelasKey && classNames[kelasKey] ? classNames[kelasKey] : "Tidak diketahui";
+
       layer.bindPopup(
-        `<strong>Kelas:</strong> ${classNames[props.kelas] || props.kelas}<br>Luas: ${areaHa.toFixed(2)} ha`
+        `<strong>Kelas:</strong> ${kelasName}<br>Luas: ${areaHa.toFixed(2)} ha`
       );
     }
 
