@@ -38,28 +38,26 @@
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // Warna dan nama berdasarkan atribut "class" di GeoJSON
+    // Warna dan nama berdasarkan atribut "class" (angka) di GeoJSON
     const classColors = {
-      "Forest": "#006400",       // Hijau tua
-      "Agriculture": "#FFD700",  // Kuning emas
-      "Settlement": "#FF0000",   // Merah
-      "Water": "#0000FF",        // Biru
-      // Tambahkan class lain jika ada
+      0: "#006400",  // Hutan (hijau tua)
+      1: "#FFD700",  // Pertanian (kuning emas)
+      2: "#FF0000",  // Pemukiman (merah)
+      3: "#0000FF"   // Air / Sungai (biru)
     };
 
     const classNames = {
-      "Forest": "Hutan",
-      "Agriculture": "Pertanian",
-      "Settlement": "Pemukiman",
-      "Water": "Air / Sungai",
-      // Tambahkan nama lain jika ada
+      0: "Hutan",
+      1: "Pertanian",
+      2: "Pemukiman",
+      3: "Air / Sungai"
     };
 
     // Fungsi style berdasarkan properti 'class'
     function style(feature) {
-      const kelasStr = feature.properties.class;
+      const kelasNum = feature.properties.class;
       return {
-        fillColor: classColors[kelasStr] || "#cccccc",
+        fillColor: classColors[kelasNum] || "#cccccc",
         color: "white",
         weight: 1,
         fillOpacity: 0.7
@@ -74,7 +72,7 @@
         areaHa = turf.area(feature) / 10000; // dari m2 ke ha
       }
 
-      const kelasName = classNames[props.class] || props.class || "Tidak diketahui";
+      const kelasName = classNames[props.class] || "Tidak diketahui";
 
       layer.bindPopup(
         `<strong>Kelas:</strong> ${kelasName}<br>Luas: ${areaHa.toFixed(2)} ha`
