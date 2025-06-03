@@ -6,7 +6,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    #map { height: 100vh; }
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+    }
+
+    #map {
+      height: 100vh;
+      width: 100%;
+      position: relative;
+      z-index: 0;
+    }
+
+    .judul {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.9);
+      padding: 8px 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      font-size: 16px;
+      font-weight: bold;
+      z-index: 999;
+    }
+
     .legend {
       background: white;
       padding: 6px;
@@ -14,6 +40,7 @@
       box-shadow: 0 0 15px rgba(0,0,0,0.2);
       border-radius: 5px;
     }
+
     .legend i {
       display: inline-block;
       width: 18px;
@@ -22,28 +49,55 @@
       border: 1px solid #999;
       vertical-align: middle;
     }
+
+    @media (max-width: 600px) {
+      .judul {
+        font-size: 14px;
+        padding: 6px 12px;
+      }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
 </head>
 <body>
+
+  <div class="judul">Peta Klasifikasi Sangir</div>
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    // Inisialisasi peta
-    const map = L.map('map').setView([-1.5269, 101.3002], 12);
+    // (Semua skrip JavaScript tetap sama seperti sebelumnya — tidak perlu diubah)
+    const positron = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; CartoDB'
+    });
 
-    // Tambahkan layer tile
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+    const darkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; CartoDB'
+    });
 
-    // Warna dan nama berdasarkan atribut "class" (angka) di GeoJSON
+    const esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri'
+    });
+
+    const map = L.map('map', {
+      center: [-1.5269, 101.3002],
+      zoom: 12,
+      layers: [positron]
+    });
+
+    const baseMaps = {
+      "Positron (Terang)": positron,
+      "Dark Matter (Gelap)": darkMatter,
+      "ESRI Satelit": esri
+    };
+
+    L.control.layers(baseMaps).addTo(map);
+
     const classColors = {
-      0: "#006400",  // Hutan (hijau tua)
-      1: "#FFD700",  // Pertanian (kuning emas)
-      2: "#FF0000",  // Pemukiman (merah)
-      3: "#0000FF"   // Air / Sungai (biru)
+      0: "#006400",
+      1: "#FFD700",
+      2: "#FF0000",
+      3: "#0000FF"
     };
 
     const classNames = {
@@ -53,7 +107,6 @@
       3: "Air / Sungai"
     };
 
-    // Fungsi style berdasarkan properti 'class'
     function style(feature) {
       const kelasNum = feature.properties.class;
       return {
@@ -64,22 +117,18 @@
       };
     }
 
-    // Popup untuk setiap fitur dengan perhitungan luas jika property area_ha tidak ada
     function onEachFeature(feature, layer) {
       const props = feature.properties;
       let areaHa = props.area_ha;
       if (!areaHa) {
-        areaHa = turf.area(feature) / 10000; // dari m2 ke ha
+        areaHa = turf.area(feature) / 10000;
       }
-
       const kelasName = classNames[props.class] || "Tidak diketahui";
-
       layer.bindPopup(
         `<strong>Kelas:</strong> ${kelasName}<br>Luas: ${areaHa.toFixed(2)} ha`
       );
     }
 
-    // Ambil dan tampilkan GeoJSON dari GitHub
     fetch('https://raw.githubusercontent.com/ridhoarazzak/Klasifikasi_peta_sangir/main/simplified_classified_all_classes_sangir_geojson.geojson')
       .then(response => response.json())
       .then(data => {
@@ -90,7 +139,6 @@
       })
       .catch(err => console.error('Error loading GeoJSON:', err));
 
-    // Tambahkan legenda
     const legend = L.control({ position: "bottomright" });
 
     legend.onAdd = function () {
