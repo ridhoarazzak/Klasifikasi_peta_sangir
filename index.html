@@ -66,7 +66,7 @@
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    // (Semua skrip JavaScript tetap sama seperti sebelumnya — tidak perlu diubah)
+    // Layer peta dasar
     const positron = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; CartoDB'
     });
@@ -79,10 +79,15 @@
       attribution: 'Tiles &copy; Esri'
     });
 
+    // Layer untuk tiles dari GitHub
+    const tilesOutputLayer = L.tileLayer('https://raw.githubusercontent.com/ridhoarazzak/Klasifikasi_peta_sangir/main/tiles_output/{z}/{x}/{y}.png', {
+      attribution: '&copy; Klasifikasi Sangir'
+    });
+
     const map = L.map('map', {
       center: [-1.5269, 101.3002],
       zoom: 12,
-      layers: [positron]
+      layers: [positron] // Layer awal yang ditampilkan
     });
 
     const baseMaps = {
@@ -91,7 +96,12 @@
       "ESRI Satelit": esri
     };
 
-    L.control.layers(baseMaps).addTo(map);
+    // Menambahkan control layer (toggle base maps)
+    const overlayMaps = {
+      "Tiles Klasifikasi Sangir": tilesOutputLayer
+    };
+
+    L.control.layers(baseMaps, overlayMaps).addTo(map);
 
     const classColors = {
       0: "#006400",
@@ -139,6 +149,7 @@
       })
       .catch(err => console.error('Error loading GeoJSON:', err));
 
+    // Menambahkan legend
     const legend = L.control({ position: "bottomright" });
 
     legend.onAdd = function () {
