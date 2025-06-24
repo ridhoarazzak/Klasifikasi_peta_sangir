@@ -50,10 +50,27 @@
       vertical-align: middle;
     }
 
+    .tombol {
+      position: absolute;
+      top: 60px;
+      left: 10px;
+      background-color: white;
+      padding: 6px 10px;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+      z-index: 999;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
     @media (max-width: 600px) {
       .judul {
         font-size: 14px;
         padding: 6px 12px;
+      }
+      .tombol {
+        font-size: 13px;
+        padding: 5px 8px;
       }
     }
   </style>
@@ -62,9 +79,10 @@
 <body>
 
   <div class="judul">Peta Klasifikasi Sangir</div>
+  <div class="tombol" id="toggle-geojson">Tampilkan GeoJSON</div>
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="script.js"></script> <!-- Memanggil script eksternal -->
+  <script src="script.js"></script>
 </body>
 </html>
