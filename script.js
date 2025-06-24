@@ -2,11 +2,9 @@
 const positron = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
   attribution: '&copy; CartoDB'
 });
-
 const darkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
   attribution: '&copy; CartoDB'
 });
-
 const esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
   attribution: 'Tiles &copy; Esri'
 });
@@ -41,7 +39,6 @@ const overlayMaps = {
   "Tile Earth Engine (Konservasi)": geeTileLayer
 };
 
-// Kontrol layer toggle
 L.control.layers(baseMaps, overlayMaps).addTo(map);
 
 // Warna dan nama kelas
@@ -59,6 +56,7 @@ const classNames = {
   3: "Air / Sungai"
 };
 
+// Style dan popup
 function style(feature) {
   const kelasNum = feature.properties.class;
   return {
@@ -81,20 +79,40 @@ function onEachFeature(feature, layer) {
   );
 }
 
-// Load GeoJSON
-fetch('https://raw.githubusercontent.com/ridhoarazzak/Klasifikasi_peta_sangir/main/simplified_classified_all_classes_sangir_geojson.geojson')
-  .then(response => response.json())
-  .then(data => {
-    L.geoJSON(data, {
-      style: style,
-      onEachFeature: onEachFeature
-    }).addTo(map);
-  })
-  .catch(err => console.error('Error loading GeoJSON:', err));
+// Layer GeoJSON dan toggle state
+let geojsonLayer = null;
+let geojsonVisible = false;
+
+document.getElementById('toggle-geojson').addEventListener('click', () => {
+  if (geojsonVisible) {
+    if (geojsonLayer) {
+      map.removeLayer(geojsonLayer);
+    }
+    document.getElementById('toggle-geojson').innerText = "Tampilkan GeoJSON";
+    geojsonVisible = false;
+  } else {
+    if (!geojsonLayer) {
+      fetch('https://raw.githubusercontent.com/ridhoarazzak/Klasifikasi_peta_sangir/main/simplified_classified_all_classes_sangir_geojson.geojson')
+        .then(response => response.json())
+        .then(data => {
+          geojsonLayer = L.geoJSON(data, {
+            style: style,
+            onEachFeature: onEachFeature
+          }).addTo(map);
+          geojsonVisible = true;
+          document.getElementById('toggle-geojson').innerText = "Sembunyikan GeoJSON";
+        })
+        .catch(err => console.error('Error loading GeoJSON:', err));
+    } else {
+      geojsonLayer.addTo(map);
+      geojsonVisible = true;
+      document.getElementById('toggle-geojson').innerText = "Sembunyikan GeoJSON";
+    }
+  }
+});
 
 // Legend
 const legend = L.control({ position: "bottomright" });
-
 legend.onAdd = function () {
   const div = L.DomUtil.create("div", "legend");
   for (let key in classColors) {
@@ -102,5 +120,4 @@ legend.onAdd = function () {
   }
   return div;
 };
-
 legend.addTo(map);
